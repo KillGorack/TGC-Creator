@@ -50,30 +50,6 @@ The database is created automatically on first run at:
 
 ---
 
-## Asset Structure
-
-Frame overlays are loaded from disk at runtime and are not embedded in the binary. Each color theme lives in its own folder:
-
-```
-Assets/
-  art_placeholder.png
-  avalonia-logo.ico
-  frames/
-    silver/
-      silver_base.png
-      cost.png
-      title.png
-      top_right.png
-      name_bar.png
-      bottom_left.png
-      bottom_center.png
-      bottom_right.png
-    gold/
-      ...
-    blue/
-      ...
-```
-
 When publishing, the `Assets/frames/` directory is copied alongside the binary automatically.
 
 ---
