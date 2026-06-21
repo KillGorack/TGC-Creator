@@ -1,0 +1,228 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:CardCreator.ViewModels"
+        xmlns:m="using:CardCreator.Models"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="1000" d:DesignHeight="700"
+        x:Class="CardCreator.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Icon="/Assets/avalonia-logo.ico"
+        Width="926"
+        Height="600"
+        Title="CardCreator"
+        Background="#1e1e1e">
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="250"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="300"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Left Column - Cards List + Buttons -->
+        <Border Grid.Column="0" Background="#2a2a2a">
+            <Grid RowDefinitions="Auto,*,Auto">
+                
+                <Border Grid.Row="0" Padding="12,12,12,8">
+                    <Button Content="New" Click="NewCard_Click"
+                            HorizontalAlignment="Stretch"
+                            Background="#4a6644" Foreground="White" Padding="8,6"/>
+                </Border>
+
+                <ListBox x:Name="CardListBox" Grid.Row="1" ItemsSource="{Binding Cards}" 
+                         SelectedItem="{Binding CurrentCard}"
+                         Margin="12,0,12,12"
+                         Background="#1e1e1e" Foreground="White"
+                         MinHeight="180"
+                         DoubleTapped="CardListBox_DoubleTapped">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate DataType="m:Card">
+                            <TextBlock Text="{Binding Title}" 
+                                       Foreground="White" Padding="4"/>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+
+                <Border Grid.Row="2" Padding="12,0,12,12">
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="⚠ Unsaved Changes" 
+                                   Foreground="#ff6b6b"
+                                   FontSize="12"
+                                   IsVisible="{Binding IsDirty}"
+                                   TextAlignment="Center"/>
+
+                        <Button Content="Load Art" Click="LoadArt_Click"
+                                IsEnabled="{Binding !IsDirty}"
+                                HorizontalAlignment="Stretch"
+                                Background="#444" Foreground="White"/>
+
+                        <Button Content="Save Card" Click="SaveCard_Click"
+                                HorizontalAlignment="Stretch"
+                                Background="#4a4a4a" Foreground="White" Padding="8,6"/>
+
+                        <Button Content="Export Card" Click="ExportCardImage_Click"
+                                HorizontalAlignment="Stretch"
+                                Background="#4a6644" Foreground="White" Padding="8,6"/>
+
+                        <Button Content="Delete Card" Click="DeleteCard_Click"
+                                IsEnabled="{Binding !IsDirty}"
+                                HorizontalAlignment="Stretch"
+                                Background="#644444" Foreground="White" Padding="8,6"/>
+                    </StackPanel>
+                </Border>
+
+            </Grid>
+        </Border>
+
+        <!-- Center Column - Card Preview -->
+        <Border Grid.Column="1" Background="#111111" Padding="20">
+            <Viewbox Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Canvas x:Name="CardCanvas" Width="1500" Height="2100">
+
+                    <Rectangle Width="1500" Height="2100"
+                            Canvas.Left="0" Canvas.Top="0"
+                            Fill="{Binding BgBrush}"/>
+
+                    <Canvas Canvas.Left="100" Canvas.Top="135" Width="1300" Height="1200"
+                            ClipToBounds="True">
+                        <Image x:Name="ArtImage"
+                            Source="/Assets/art_placeholder.png"
+                            Width="1300" Height="1200"
+                            Stretch="UniformToFill"/>
+                    </Canvas>
+
+                    <!-- Base frame -->
+                    <Image Source="{Binding BaseFrameBitmap}" Width="1500" Height="2100"
+                           Canvas.Left="0" Canvas.Top="0"/>
+
+                    <!-- Zone 1: Cost -->
+                    <Canvas Canvas.Left="78" Canvas.Top="75" Width="235" Height="225"
+                            IsVisible="{Binding ShowCost}">
+                        <Image Source="{Binding CostBitmap}" Width="235" Height="225"/>
+                    </Canvas>
+                    <Canvas Canvas.Left="98" Canvas.Top="94" Width="186" Height="187"
+                            IsVisible="{Binding ShowCost}">
+                        <TextBlock Text="{Binding Cost}" Foreground="White"
+                                FontSize="64" FontWeight="Bold" TextAlignment="Center" Padding="0,55,0,0"
+                                Width="186" Height="187" Canvas.Left="0" Canvas.Top="0"/>
+                    </Canvas>
+
+                    <!-- Zone 2: Title -->
+                    <Canvas Canvas.Left="394" Canvas.Top="75" Width="730" Height="147"
+                            IsVisible="{Binding ShowTitle}">
+                        <Image Source="{Binding TitleBitmap}" Width="730" Height="147"/>
+                    </Canvas>
+                    <Canvas Canvas.Left="411" Canvas.Top="92" Width="677" Height="109"
+                            IsVisible="{Binding ShowTitle}">
+                        <TextBlock Text="{Binding Title}" Foreground="White"
+                                   FontSize="56" FontWeight="Bold" TextAlignment="Center" Padding="0,20,0,0"
+                                   Width="677" Height="109" Canvas.Left="0" Canvas.Top="0"/>
+                    </Canvas>
+
+                    <!-- Zone 3: Top Right -->
+                    <Canvas Canvas.Left="1130" Canvas.Top="75" Width="312" Height="199"
+                            IsVisible="{Binding ShowTopRight}">
+                        <Image Source="{Binding TopRightBitmap}" Width="312" Height="199"/>
+                    </Canvas>
+                    <Canvas Canvas.Left="1150" Canvas.Top="93" Width="259" Height="150"
+                            IsVisible="{Binding ShowTopRight}">
+                        <TextBlock Text="{Binding TopRight}" Foreground="White"
+                                   FontSize="56" FontWeight="Bold" TextAlignment="Center" Padding="0,40,0,0"
+                                   Width="259" Height="150" Canvas.Left="0" Canvas.Top="0"/>
+                    </Canvas>
+
+                    <!-- Zone 4: Name Bar -->
+                    <Canvas Canvas.Left="138" Canvas.Top="1151" Width="1248" Height="170"
+                            IsVisible="{Binding ShowNameBar}">
+                        <Image Source="{Binding NameBarBitmap}" Width="1248" Height="170"/>
+                    </Canvas>
+                    <Canvas Canvas.Left="157" Canvas.Top="1169" Width="1189" Height="118"
+                            IsVisible="{Binding ShowNameBar}">
+                        <TextBlock Text="{Binding NameBar}" Foreground="White"
+                                   FontSize="64" FontWeight="Bold" TextAlignment="Center" Padding="0,20,0,0"
+                                   Width="1189" Height="118" Canvas.Left="0" Canvas.Top="0"/>
+                    </Canvas>
+
+                    <!-- Zone 5: Bottom Left -->
+                    <Canvas Canvas.Left="96" Canvas.Top="1803" Width="316" Height="212"
+                            IsVisible="{Binding ShowBottomLeft}">
+                        <Image Source="{Binding BottomLeftBitmap}" Width="316" Height="212"/>
+                    </Canvas>
+                    <Canvas Canvas.Left="120" Canvas.Top="1826" Width="259" Height="149"
+                            IsVisible="{Binding ShowBottomLeft}">
+                        <TextBlock Text="{Binding BottomLeft}" Foreground="White"
+                                   FontSize="56" FontWeight="Bold" TextAlignment="Center" Padding="0,40,0,0"
+                                   Width="259" Height="149" Canvas.Left="0" Canvas.Top="0"/>
+                    </Canvas>
+
+                    <!-- Zone 6: Bottom Center -->
+                    <Canvas Canvas.Left="432" Canvas.Top="1845" Width="652" Height="170"
+                            IsVisible="{Binding ShowBottomCenter}">
+                        <Image Source="{Binding BottomCenterBitmap}" Width="652" Height="170"/>
+                    </Canvas>
+                    <Canvas Canvas.Left="456" Canvas.Top="1867" Width="589" Height="107"
+                            IsVisible="{Binding ShowBottomCenter}">
+                        <TextBlock Text="{Binding BottomCenter}" Foreground="White"
+                                FontSize="56" FontWeight="Bold" TextAlignment="Center" Padding="0,20,0,0"
+                                Width="589" Height="107" Canvas.Left="0" Canvas.Top="0"/>
+                    </Canvas>
+
+                    <!-- Zone 7: Bottom Right -->
+                    <Canvas Canvas.Left="1100" Canvas.Top="1807" Width="321" Height="208"
+                            IsVisible="{Binding ShowBottomRight}">
+                        <Image Source="{Binding BottomRightBitmap}" Width="321" Height="208"/>
+                    </Canvas>
+                    <Canvas Canvas.Left="1121" Canvas.Top="1826" Width="259" Height="150"
+                            IsVisible="{Binding ShowBottomRight}">
+                        <TextBlock Text="{Binding BottomRight}" Foreground="White"
+                                FontSize="56" FontWeight="Bold" TextAlignment="Center" Padding="0,40,0,0"
+                                Width="259" Height="150" Canvas.Left="0" Canvas.Top="0"/>
+                    </Canvas>
+
+                    <!-- Body Text -->
+                    <TextBlock Text="{Binding BodyText}"
+                            TextWrapping="Wrap"
+                            Foreground="#222222" FontSize="52"
+                            Canvas.Left="95" Canvas.Top="1344"
+                            Padding="20" FontFamily="Liberation Serif"
+                            FontWeight="Bold"
+                            Width="1313" Height="663"/>
+
+                </Canvas>
+            </Viewbox>
+        </Border>
+
+        <!-- Right Column - Text Fields -->
+        <Border Grid.Column="2" Background="#2a2a2a" Padding="12">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel Spacing="8">
+
+                    <TextBlock Text="{Binding ErrorMessage}" Foreground="#ff6b6b" FontSize="11" 
+                               Margin="0,0,0,4" TextWrapping="Wrap" MinHeight="20"/>
+
+                    <TextBlock Text="Fields" Foreground="#aaaaaa" FontSize="11" Margin="0,0,0,4"/>
+                    <TextBox PlaceholderText="Top Left"         Text="{Binding Cost}"/>
+                    <TextBox PlaceholderText="Top Center"       Text="{Binding Title}"/>
+                    <TextBox PlaceholderText="Top Right"        Text="{Binding TopRight}"/>
+                    <TextBox PlaceholderText="Center Center"    Text="{Binding NameBar}"/>
+                    <TextBox PlaceholderText="Bottom Left"      Text="{Binding BottomLeft}"/>
+                    <TextBox PlaceholderText="Bottom Center"    Text="{Binding BottomCenter}"/>
+                    <TextBox PlaceholderText="Bottom Right"     Text="{Binding BottomRight}"/>
+                    <TextBox PlaceholderText="Body Text"        Text="{Binding BodyText}" AcceptsReturn="True" Height="80" TextWrapping="Wrap"/>
+
+                    <TextBlock Text="Background Color" Foreground="#aaaaaa" FontSize="11" Margin="0,4,0,2"/>
+                    <TextBox x:Name="BgColorBox" PlaceholderText="#000000" Text="{Binding BgColor}"
+                            Foreground="White"/>
+
+                    <TextBlock Text="Frame Color" Foreground="#aaaaaa" FontSize="11" Margin="0,4,0,2"/>
+                    <ComboBox ItemsSource="{Binding FrameColors}"
+                            SelectedItem="{Binding FrameColor}"
+                            HorizontalAlignment="Stretch"/>
+
+                </StackPanel>
+            </ScrollViewer>
+        </Border>
+
+    </Grid>
+</Window>
