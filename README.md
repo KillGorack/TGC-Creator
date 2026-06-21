@@ -6,6 +6,8 @@ Cards are rendered at 1500x2100px (600 DPI print-ready) with swappable color-the
 
 ---
 
+<img width="995" height="612" alt="image" src="https://github.com/user-attachments/assets/18cd8202-6bab-48ac-b38e-b5fc68e77fe5" />
+
 ## Features
 
 - Create, edit, save, and delete cards stored in a local SQLite database
